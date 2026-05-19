@@ -105,3 +105,138 @@ If you want, I can also explain:
 * how to undo a pushed commit safely
 
 
+## `git reset` vs `git revert`
+
+### `git reset`
+
+Rewrites history by moving the branch pointer.
+
+Example:
+
+```bash id="r1"
+git reset --hard HEAD~1
+```
+
+Before:
+
+```text
+A -- B -- C (HEAD)
+```
+
+After:
+
+```text
+A -- B (HEAD)
+```
+
+Commit `C` disappears from branch history.
+
+Best for:
+
+* Local commits
+* Cleaning up before pushing
+
+Avoid on shared branches unless you know what you're doing.
+
+---
+
+### `git revert`
+
+Creates a new commit that undoes changes.
+
+Example:
+
+```bash id="r2"
+git revert HEAD
+```
+
+Before:
+
+```text
+A -- B -- C (HEAD)
+```
+
+After:
+
+```text
+A -- B -- C -- D (HEAD)
+             ^
+             D reverses C
+```
+
+Best for:
+
+* Shared branches
+* Safe undo after pushing
+
+---
+
+# Quick Rule
+
+| Situation                 | Use          |
+| ------------------------- | ------------ |
+| Undo local commit         | `git reset`  |
+| Undo pushed/shared commit | `git revert` |
+| Keep history clean        | `git reset`  |
+| Preserve history          | `git revert` |
+
+---
+
+# Useful Real Examples
+
+## Undo last commit but keep files
+
+```bash id="r3"
+git reset --soft HEAD~1
+```
+
+You can recommit differently.
+
+---
+
+## Remove accidental files from commit
+
+```bash id="r4"
+git reset HEAD file.txt
+```
+
+Then recommit.
+
+---
+
+## Undo pushed commit safely
+
+```bash id="r5"
+git revert HEAD
+git push
+```
+
+---
+
+## Reset branch to remote state
+
+```bash id="r6"
+git fetch origin
+git reset --hard origin/main
+```
+
+Deletes local changes and matches remote exactly.
+
+---
+
+# Visual Mental Model
+
+Git has 3 areas:
+
+```text
+Working Directory  ->  Staging Area  ->  Repository
+(files)               (index)           (commits)
+```
+
+`git reset` can affect:
+
+* commits
+* staging
+* files
+
+depending on mode (`soft`, `mixed`, `hard`).
